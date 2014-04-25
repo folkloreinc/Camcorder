@@ -1,6 +1,18 @@
 {
   "name": "Camcorder",
   "version": "0.1.0",
+  "main": "build/camcorder.js",
+  "license": "MIT",
+  "ignore": [
+    "demo",
+    "flash",
+    "wowza",
+    "javascript",
+    "Gruntfile.js",
+    "package.json",
+    ".bowerrc",
+    ".jshintrc"
+  ],
   "dependencies": {
     "swfobject": "*",
     "jquery": "~1.9.1"
