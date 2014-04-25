@@ -433,7 +433,7 @@ var requirejs, require, define;
     };
 }());
 
-define("components/almond/almond", function(){});
+define("../bower_components/almond/almond", function(){});
 
 /*!
     Underscore.js templates as a standalone implementation. 
@@ -532,7 +532,10 @@ define("template", (function (global) {
 }(this)));
 
 /**
+ * 
+ * EventDispatcher
  * @author mrdoob / http://mrdoob.com/
+ * 
  */
 (function () {
 
@@ -1114,10 +1117,12 @@ function (
 
     Camcorder.isSupported = function() {
 
-        if (swfobject.hasFlashPlayerVersion('9.0.0')) {
+        if (swfobject.hasFlashPlayerVersion('9.0.0'))
+        {
             return true;
         }
-        else {
+        else
+        {
             return false;
         }
 
@@ -1128,10 +1133,12 @@ function (
 
     Camcorder.prototype.detectFlashVersion = function() {
 
-        if (swfobject.hasFlashPlayerVersion('11.0.0')) {
+        if (swfobject.hasFlashPlayerVersion('11.0.0'))
+        {
             this.options.flashVersion = 11;
         }
-        else if (swfobject.hasFlashPlayerVersion('9.0.0')) {
+        else if (swfobject.hasFlashPlayerVersion('9.0.0'))
+        {
             this.options.flashVersion = 9;
         }
 
@@ -1167,6 +1174,10 @@ function (
     {
         this.mode = mode;
         this._flash.setMode(mode);
+
+        this.playing = false;
+        this.recording = false;
+        this.paused = false;
     };
 
     Camcorder.prototype.setSpectrumRadius = function(radius)
@@ -1261,6 +1272,10 @@ function (
             this.recording = false;
             this.paused = true;
             break;
+        case 'playback.stop':
+            this.recording = false;
+            this.paused = false;
+            break;
         case 'playback.ended':
             this.recording = false;
             this.paused = false;
@@ -1281,7 +1296,7 @@ require.config({
 
     paths: {
 
-        'text' : 'components/requirejs-text/text',
+        'text' : '../bower_components/requirejs-text/text',
         'template' : 'vendors/template',
 
         'eventdispatcher' : 'vendors/EventDispatcher'

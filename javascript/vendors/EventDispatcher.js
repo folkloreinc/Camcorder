@@ -1,5 +1,8 @@
 /**
+ * 
+ * EventDispatcher
  * @author mrdoob / http://mrdoob.com/
+ * 
  */
 (function () {
 

@@ -25,8 +25,7 @@ module.exports = function(grunt) {
                 files: [
                     'javascript/{,*/}*.js',
                     'javascript/lib/{,*/}*.js',
-                    '!javascript/vendor/*',
-                    '!javascript/components/*'
+                    '!javascript/vendor/*'
                     
                 ],
                 tasks: ['jshint'],
@@ -44,8 +43,7 @@ module.exports = function(grunt) {
                     'flash/{,*/}*.as',
                     'demo/*.html',
                     'scss/{,*/}*.scss',
-                    '!javascript/vendor/*',
-                    '!javascript/components/*'
+                    '!javascript/vendor/*'
                 ]
             }
         },
@@ -65,6 +63,7 @@ module.exports = function(grunt) {
                         return [
                             connect.static('.tmp/'),
                             connect().use('/javascript', connect.static('javascript/')),
+                            connect().use('/bower_components', connect.static('bower_components/')),
                             connect.static('demo/')
                         ];
                     }
@@ -112,8 +111,7 @@ module.exports = function(grunt) {
                 'Gruntfile.js',
                 'javascript/{,*/}*.js',
                 'javascript/lib/{,*/}*.js',
-                '!javascript/vendors/*',
-                '!javascript/components/*'
+                '!javascript/vendors/*'
             ]
         },
 
@@ -121,7 +119,7 @@ module.exports = function(grunt) {
             server: {
                 files: [
                     {
-                        src: 'javascript/components/swfobject/swfobject/expressInstall.swf',
+                        src: 'bower_components/swfobject/swfobject/expressInstall.swf',
                         dest: '.tmp/swf/expressInstall.swf'
                     }
                 ]
@@ -129,15 +127,15 @@ module.exports = function(grunt) {
             build: {
                 files: [
                     {
-                        src: 'javascript/components/jquery/dist/jquery.min.js',
+                        src: 'bower_components/jquery/dist/jquery.min.js',
                         dest: 'build/vendors/jquery.min.js'
                     },
                     {
-                        src: 'javascript/components/swfobject/swfobject/swfobject.js',
+                        src: 'bower_components/swfobject/swfobject/swfobject.js',
                         dest: 'build/vendors/swfobject.min.js'
                     },
                     {
-                        src: 'javascript/components/swfobject/swfobject/expressInstall.swf',
+                        src: 'bower_components/swfobject/swfobject/expressInstall.swf',
                         dest: 'build/swf/expressInstall.swf'
                     }
                 ]
@@ -147,7 +145,7 @@ module.exports = function(grunt) {
         modernizr: {
 
             build: {
-                devFile : 'javascript/components/modernizr/modernizr.js',
+                devFile : 'bower_components/modernizr/modernizr.js',
                 outputFile : '.tmp/vendors/modernizr.js',
                 parseFiles : true,
                 extra : {
@@ -170,7 +168,7 @@ module.exports = function(grunt) {
                     src: [
                         'javascript/{,*/}*.js',
                         '!javascript/vendors/*',
-                        '!javascript/components/*'
+                        '!bower_components/*'
                     ]
                 }
             }
@@ -187,37 +185,28 @@ module.exports = function(grunt) {
                     '.tmp/swf/camcorder.swf': ['flash/Camcorder.as']
                 }
             },
-            /*serverBasic: {
-                files: {
-                    '.tmp/swf/camera_basic.swf': ['flash/CamcorderBasic.as']
-                }
-            },*/
             build: {
                 files: {
                     'build/swf/camcorder.swf': ['flash/Camcorder.as']
                 }
-            }/*,
-            buildBasic: {
-                files: {
-                    'build/swf/camera_basic.swf': ['flash/CamcorderBasic.as']
-                }
-            }*/
+            }
         },
 
         requirejs: {
             options: {
                 baseUrl: 'javascript',
                 mainConfigFile: 'javascript/main.js',
-                name: 'components/almond/almond',
+                name: '../bower_components/almond/almond',
                 path: {
                     'modernizr' : '.tmp/vendors/modernizr',
                     'modernizr-getusermedia' : 'empty:'
                 },
                 include: ['main'],
                 wrap: {
-                    startFile: 'javascript/start.frag',
-                    endFile: 'javascript/end.frag'
-                }
+                    startFile: 'javascript/build/start.frag',
+                    endFile: 'javascript/build/end.frag'
+                },
+                preserveLicenseComments: true
             },
             build: {
                 options: {
@@ -234,12 +223,10 @@ module.exports = function(grunt) {
 
         concurrent: {
             server: [
-                'mxmlc:server',
-                //'mxmlc:serverBasic'
+                'mxmlc:server'
             ],
             build: [
                 'mxmlc:build',
-                //'mxmlc:buildBasic',
                 'requirejs:build',
                 'requirejs:buildMin'
             ]

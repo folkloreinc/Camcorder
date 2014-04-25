@@ -4,7 +4,7 @@ require.config({
 
     paths: {
 
-        'text' : 'components/requirejs-text/text',
+        'text' : '../bower_components/requirejs-text/text',
         'template' : 'vendors/template',
 
         'eventdispatcher' : 'vendors/EventDispatcher'

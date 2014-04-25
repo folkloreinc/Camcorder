@@ -1,4 +1,4 @@
-node_modules
 .tmp
-javascript/components
+node_modules
+bower_components
 flash/backup
