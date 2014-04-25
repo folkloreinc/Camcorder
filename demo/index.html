@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+<head>
+	<title>Camcorder</title>
+
+	<style type="text/css">
+
+		ul,li {
+			list-style:none;
+		}
+
+		img {
+			border:none;
+		}
+
+		html,body {
+			width:100%;
+			height:100%;
+			margin:0;
+			padding:0;
+		}
+
+		#camera {
+			position:absolute;
+			top:0px;
+			left:0px;
+			width:100%;
+			height:100%;
+			z-index:1;
+		}
+
+		#controls {
+			position:absolute;
+			bottom:0px;
+			left:0px;
+			text-align:center;
+			z-index:2;
+		}
+
+		#controls li {
+			display:inline-block;
+		}
+
+	</style>
+</head>
+<body>
+
+	<div id="camera"></div>
+	<div id="controls">
+		<ul>
+			<li><button type="button" class="record" disabled="disabled">Record</button></li>
+			<li><button type="button" class="stop" disabled="disabled">Stop</button></li>
+			<li><button type="button" class="play" disabled="disabled">Play</button></li>
+			<li><button type="button" class="pause" disabled="disabled">Pause</button></li>
+			<li class="recording"></li>
+		</ul>
+	</div>
+
+	<!-- Dependencies -->
+	<!-- build:js vendors/jquery.min.js -->
+	<script src="javascript/components/jquery/dist/jquery.min.js"></script>
+	<!-- /build -->
+	<!-- build:js vendors/swfobject.min.js -->
+	<script src="javascript/components/swfobject/swfobject/swfobject.js"></script>
+	<!-- /build -->
+
+	<!-- Camcorder library -->
+	<!-- build:js camcorder.js -->
+	<script src="javascript/components/requirejs/require.js" data-main="javascript/main"></script>
+	<!-- /build -->
+
+	<!-- Camcorder demo -->
+	<script type="text/javascript">
+
+		var camera;
+
+		function init(Camcorder) {
+
+			camera = new Camcorder('#camera',{
+            	'debugMode' : true,
+        		'mode' : Camcorder.MODE_PLAYBACK,
+        		'recordId' : 'camera_1398364403705',
+				'params' : {
+					'wmode' : 'transparent'
+				},
+            	'flashVars': {
+            		'spectrumRadius' : Math.round(window.innerHeight/2)-20,
+            		'spectrumNoise' : Math.round(window.innerHeight*0.3)
+            	}
+			});
+
+			$(window).resize(function() {
+				camera.setSpectrumRadius(Math.round(window.innerHeight/2)-20);
+				camera.setSpectrumNoise(Math.round(window.innerHeight*0.3));
+			});
+
+			$('button.record').click(function(e) {
+				e.preventDefault();
+				camera.record();
+			});
+
+			$('button.stop').click(function(e) {
+				e.preventDefault();
+				camera.stop();
+			});
+
+			$('button.play').click(function(e) {
+				e.preventDefault();
+				camera.play();
+			});
+
+			$('button.pause').click(function(e) {
+				e.preventDefault();
+				camera.pause();
+			});
+
+			camera.on('ready',function() {
+				if(camera.mode == Camcorder.MODE_RECORD) {
+					$('.record').removeAttr('disabled');
+				} else if(camera.mode == Camcorder.MODE_PLAYBACK) {
+					$('.play').removeAttr('disabled');
+				}
+			});
+			camera.on('record.start',function() {
+				$('.record, .play').attr('disabled','disabled');
+				$('.stop, .pause').removeAttr('disabled');
+			});
+			camera.on('record.stop',function() {
+				$('.pause, .stop').attr('disabled','disabled');
+			});
+			camera.on('record.pause',function() {
+				$('.stop, .record').removeAttr('disabled');
+				$('.pause, .play').attr('disabled','disabled');
+			});
+			camera.on('record.ready',function() {
+				$('.record, .play').removeAttr('disabled');
+				$('.pause, .stop').attr('disabled','disabled');
+			});
+
+			camera.on('playback.play',function() {
+				$('.play').attr('disabled','disabled');
+				$('.stop, .pause').removeAttr('disabled');
+			});
+			camera.on('playback.pause',function() {
+				$('.stop, .play').removeAttr('disabled');
+				$('.pause').attr('disabled','disabled');
+			});
+			camera.on('playback.stop',function() {
+				$('.play').removeAttr('disabled');
+				$('.pause, .stop').attr('disabled','disabled');
+			});
+			camera.on('playback.ended',function() {
+				$('.play').removeAttr('disabled');
+				$('.pause, .stop').attr('disabled','disabled');
+			});
+
+		}
+
+		//Initialize camcorder from require or direct
+		window.onload = function() {
+			if(typeof(Camcorder) !== 'undefined') {
+				init(Camcorder);
+			} else {
+				require(['main'],function(Camcorder) {
+					init(Camcorder);
+				});
+			}
+		};
+
+	</script>
+
+</body>

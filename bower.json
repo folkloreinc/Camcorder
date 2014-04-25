@@ -1,0 +1,10 @@
+{
+  "name": "Camcorder",
+  "version": "0.0.1",
+  "dependencies": {
+    "almond": "~0.2.9",
+    "requirejs": "~2.1.11",
+    "swfobject": "*",
+    "jquery": "~1.9.1"
+  }
+}

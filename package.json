@@ -1,0 +1,25 @@
+{
+  "name": "Camcorder",
+  "version": "0.1.0",
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-jshint": "~0.6.3",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "grunt-contrib-uglify": "~0.2.2",
+    "load-grunt-tasks": "~0.4.0",
+    "flex-sdk": "~4.6.0",
+    "grunt-mxmlc": "~0.5.1",
+    "grunt-contrib-requirejs": "~0.4.3",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-concurrent": "~0.5.0",
+    "grunt-contrib-clean": "~0.5.0",
+    "jshint-stylish": "~0.1.5",
+    "grunt-contrib-connect": "~0.7.1",
+    "grunt-processhtml": "~0.3.2",
+    "grunt-contrib-copy": "~0.5.0",
+    "grunt-modernizr": "~0.5.2"
+  },
+  "dependencies": {
+    
+  }
+}
