@@ -199,6 +199,14 @@ package
 			onResize();
 		}
 
+		public function getCurrentTime():Number
+		{
+			if(_stream) {
+				return _stream.time;
+			}
+			return 0.0;
+		}
+
 		public function computeSpectrum(byteArray:ByteArray):void
 		{
 			SoundMixer.computeSpectrum(byteArray,true,0);

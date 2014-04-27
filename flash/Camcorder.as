@@ -179,6 +179,7 @@ package
             ExternalInterface.addCallback('pause',pause);
             ExternalInterface.addCallback('stop',stop);
             ExternalInterface.addCallback('setMode',setMode);
+            ExternalInterface.addCallback('getCurrentTime',getCurrentTime);
             ExternalInterface.addCallback('setSpectrumRadius',setSpectrumRadius);
             ExternalInterface.addCallback('setSpectrumNoise',setSpectrumNoise);
             ExternalInterface.addCallback('setSpectrumPoints',setSpectrumPoints);
@@ -224,6 +225,15 @@ package
             } else if(_mode == MODE_RECORD) {
                 _camera.stop();
             }
+        }
+
+        private function getCurrentTime():Number
+        {
+            if(_mode == MODE_PLAYBACK) {
+                return _vcr.getCurrentTime();
+            }
+
+            return 0.0;
         }
 
         private function setMode(mode:String):void
