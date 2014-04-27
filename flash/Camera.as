@@ -23,6 +23,7 @@ package
 	import flash.system.SecurityPanel;
 
     import lib.FFT2;
+    import com.folklore.events.CameraEvent;
 	
 	public class Camera extends Sprite
 	{

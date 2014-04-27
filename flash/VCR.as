@@ -15,6 +15,8 @@ package
     import flash.external.ExternalInterface;
 
     import flash.utils.ByteArray;
+    
+    import com.folklore.events.VCREvent;
 	
 	public class VCR extends Sprite
 	{

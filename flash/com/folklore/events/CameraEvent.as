@@ -1,4 +1,4 @@
-package
+package com.folklore.events
 {
     import flash.events.Event;
 

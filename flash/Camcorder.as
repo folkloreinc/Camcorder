@@ -19,6 +19,9 @@ package
     import VCR;
     import Camera;
 
+    import com.folklore.events.VCREvent;
+    import com.folklore.events.CameraEvent;
+
     public class Camcorder extends Sprite
     {
         /*
