@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "almond": "~0.2.9",
+    "modernizr": "~2.6.2",
     "requirejs": "~2.1.11",
     "requirejs-text": "~2.0.12"
   }
