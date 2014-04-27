@@ -26,6 +26,7 @@ function (
             'mode' : Camcorder.MODE_RECORD,
             'recordId' : null,
             'debugMode' : true,
+            'volume' : 1.0,
             'serverURL' : 'rtmp://localhost/camcorder',
             'flashVersion' : 'auto',
             'swf' : 'swf/',
@@ -129,6 +130,22 @@ function (
         this.playing = false;
         this.recording = false;
         this.paused = false;
+    };
+
+    Camcorder.prototype.setVolume = function(volume)
+    {
+        this._flash.setVolume(volume);
+        this.options.volume = volume;
+    };
+
+    Camcorder.prototype.mute = function()
+    {
+        this._flash.setVolume(0);
+    };
+
+    Camcorder.prototype.unmute = function()
+    {
+        this._flash.setVolume(this.options.volume);
     };
 
     Camcorder.prototype.setSpectrumRadius = function(radius)

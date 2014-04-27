@@ -8,6 +8,7 @@ package
 
 	import flash.media.Video;
     import flash.media.SoundMixer;
+    import flash.media.SoundTransform;
 
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
@@ -41,6 +42,8 @@ package
 
 		private var _connection:NetConnection;
 		private var _stream:NetStream;
+
+		private var _soundTransform:SoundTransform;
 
 		private var _isPaused:Boolean = false;
 		private var _isReady:Boolean = false;
@@ -185,6 +188,16 @@ package
 			resetVideo();
 		}
 
+		public function setVolume(volume:Number):void
+		{
+			_soundTransform = new SoundTransform();
+			_soundTransform.volume = volume;
+
+			if(_stream) {
+				_stream.soundTransform = _soundTransform;
+			}
+		}
+
 		public function setVideoSize(width:Number, height:Number):void
 		{
 			_videoWidth = width;
@@ -224,6 +237,10 @@ package
 			_stream = new NetStream( _connection );
 			_stream.client = {};
 			_stream.bufferTime = 2;
+
+			if(_soundTransform) {
+				_stream.soundTransform = _soundTransform;
+			}
 			
 			//Event listeners
 			_stream.addEventListener( NetStatusEvent.NET_STATUS, onStreamStatus );

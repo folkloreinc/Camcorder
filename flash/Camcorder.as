@@ -180,6 +180,7 @@ package
             ExternalInterface.addCallback('stop',stop);
             ExternalInterface.addCallback('setMode',setMode);
             ExternalInterface.addCallback('getCurrentTime',getCurrentTime);
+            ExternalInterface.addCallback('setVolume',setVolume);
             ExternalInterface.addCallback('setSpectrumRadius',setSpectrumRadius);
             ExternalInterface.addCallback('setSpectrumNoise',setSpectrumNoise);
             ExternalInterface.addCallback('setSpectrumPoints',setSpectrumPoints);
@@ -234,6 +235,13 @@ package
             }
 
             return 0.0;
+        }
+
+        private function setVolume(volume:Number):void
+        {
+            if(_mode == MODE_PLAYBACK) {
+                _vcr.setVolume(volume);
+            }
         }
 
         private function setMode(mode:String):void
