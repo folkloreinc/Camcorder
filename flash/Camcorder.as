@@ -302,7 +302,6 @@ package
         {
             var intensity:Number = 0;
             var total:Number = 0;
-            //var count:Number = _spectrumByteArray.length;
             var count:Number = 0;
 
             _spectrumByteArray.position = 0;
@@ -315,7 +314,6 @@ package
             {
                 intensity = intensity*7;
             }
-            log('updateSpectrumAnalyzer: '+intensity);
 
             _spectrumMask.intensity = intensity;
             _spectrumMask.draw();
