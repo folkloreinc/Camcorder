@@ -9,6 +9,7 @@ package
 	import flash.events.NetStatusEvent;
 	import flash.events.TimerEvent;
 	import flash.events.SampleDataEvent;
+	import flash.events.MouseEvent;
 
 	import flash.media.Video;
 
@@ -76,6 +77,8 @@ package
 
 		private var _isPaused:Boolean = false;
 		private var _isReady:Boolean = false;
+		private var _cameraReady:Boolean = false;
+		private var _settingsOpened:Boolean = false;
 
 		public var recording:Object;
 		public var recordingStartTime:Date;
@@ -300,10 +303,18 @@ package
 		}
 
 		public function showSettings(key:String):void {
+
+			this._settingsOpened = true;
+
+			Camcorder.log('Opening security panel');
+
 			if (key == null) {
 				key = SecurityPanel.CAMERA;
 			}
 			Security.showSettings(key);
+
+			root.stage.addEventListener(MouseEvent.MOUSE_OVER, onMouseMove);
+            
 		}
 
 		public function setWebcamSize(width:Number, height:Number):void
@@ -483,6 +494,20 @@ package
 			_video.y = videoY;
 		}
 
+		private function onMouseMove(e:Event):void {
+			
+			_settingsOpened = false;
+
+            root.stage.removeEventListener(MouseEvent.MOUSE_OVER, onMouseMove);
+
+			if(!_isReady && !_cameraReady) {
+				_isReady = true;
+				dispatchEvent(new CameraEvent(CameraEvent.CAMERA_READY));
+			}
+
+			Camcorder.log('Security panel closed');
+        }
+
 		private function onWebcamStatus(e:StatusEvent):void
 		{
 
@@ -490,7 +515,8 @@ package
 
 			switch(e.code) {
 				case "Camera.Unmuted":
-					if(!_isReady) {
+					_cameraReady = true;
+					if(!_isReady && !_settingsOpened) {
 						_isReady = true;
 						dispatchEvent(new CameraEvent(CameraEvent.CAMERA_READY));
 					}
