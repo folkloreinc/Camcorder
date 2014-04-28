@@ -178,6 +178,7 @@ package
             ExternalInterface.addCallback('play',play);
             ExternalInterface.addCallback('pause',pause);
             ExternalInterface.addCallback('stop',stop);
+            ExternalInterface.addCallback('reset',reset);
             ExternalInterface.addCallback('setMode',setMode);
             ExternalInterface.addCallback('getCurrentTime',getCurrentTime);
             ExternalInterface.addCallback('setVolume',setVolume);
@@ -225,6 +226,13 @@ package
                 _vcr.stop();
             } else if(_mode == MODE_RECORD) {
                 _camera.stop();
+            }
+        }
+
+        private function reset():void
+        {
+            if(_mode == MODE_PLAYBACK) {
+                _vcr.reset();
             }
         }
 

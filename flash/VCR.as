@@ -188,6 +188,12 @@ package
 			resetVideo();
 		}
 
+		public function reset():void
+		{
+			stopPlayStream();
+			resetVideo();
+		}
+
 		public function setVolume(volume:Number):void
 		{
 			_soundTransform = new SoundTransform();
@@ -314,7 +320,6 @@ package
 			switch(info.code) {
 				case "NetStream.Play.Complete":
 					stopPlayStream();
-					resetVideo();
 					dispatchEvent(new VCREvent(VCREvent.ENDED));
 				break;
 			}
