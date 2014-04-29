@@ -345,7 +345,7 @@ package
             intensity = count > 0 ? Math.abs(total/count):0;
             if(_mode == MODE_PLAYBACK)
             {
-                intensity = intensity*7;
+                intensity = intensity*5;
             }
 
             _spectrumMask.intensity = intensity;
