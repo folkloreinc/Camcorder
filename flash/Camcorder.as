@@ -65,6 +65,8 @@ package
         private var _spectrumNoise : Number;
         private var _spectrumPoints : Number;
 
+        private var _playbackIntensityFactor : Number = 0.2;
+
         public function Camcorder()
         {
             //Stage
@@ -253,7 +255,11 @@ package
         private function setVolume(volume:Number):void
         {
             if(_mode == MODE_PLAYBACK) {
-                _vcr.setVolume(volume);
+                if(volume == 0) {
+                    volume = 0.0001;
+                }
+                _playbackIntensityFactor = volume;
+                SoundMixer.soundTransform = new SoundTransform(volume);
             }
         }
 
@@ -268,6 +274,7 @@ package
             if(mode == MODE_PLAYBACK) {
 
                 if(_mode == MODE_RECORD) {
+                    stopSpectrumAnalyzer();
                     removeChild(_spectrumMask);
                     removeChild(_camera);
                 }
@@ -345,7 +352,7 @@ package
             intensity = count > 0 ? Math.abs(total/count):0;
             if(_mode == MODE_PLAYBACK)
             {
-                intensity = intensity*5;
+                intensity = intensity/this._playbackIntensityFactor;
             }
 
             _spectrumMask.intensity = intensity;
@@ -473,6 +480,10 @@ package
          */
         private function onVCRReady( e:Event ):void
         {
+
+            _spectrumMask.intensity = 0;
+            _spectrumMask.draw();
+
             notify('playback.ready');
 
             if(!_isReady && _mode == MODE_PLAYBACK) {
