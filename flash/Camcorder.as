@@ -9,6 +9,9 @@ package
     import flash.events.NetStatusEvent;
     import flash.events.ActivityEvent;
 
+    import flash.media.SoundMixer;
+    import flash.media.SoundTransform;
+
     import flash.net.NetConnection;
 
     import flash.utils.ByteArray;
@@ -153,9 +156,11 @@ package
             if(_mode == MODE_PLAYBACK) {
                 addChild(_vcr);
                 _vcr.mask = _spectrumMask;
+                SoundMixer.soundTransform = new SoundTransform(1.0);
             } else if(_mode == MODE_RECORD) {
                 addChild(_camera);
                 _camera.mask = _spectrumMask;
+                SoundMixer.soundTransform = new SoundTransform(0);
             }
         }
 
@@ -268,6 +273,7 @@ package
                 }
 
                 modeSprite = _vcr;
+                SoundMixer.soundTransform = new SoundTransform(1.0);
 
             } else if(mode == MODE_RECORD) {
 
@@ -277,6 +283,7 @@ package
                 }
 
                 modeSprite = _camera;
+                SoundMixer.soundTransform = new SoundTransform(0);
 
             }
 

@@ -500,7 +500,7 @@ package
 
             root.stage.removeEventListener(MouseEvent.MOUSE_OVER, onMouseMove);
 
-			if(!_isReady && !_cameraReady) {
+			if(!_isReady && _cameraReady) {
 				_isReady = true;
 				dispatchEvent(new CameraEvent(CameraEvent.CAMERA_READY));
 			}
@@ -532,6 +532,11 @@ package
 		private function onMicrophoneStatus(e:StatusEvent):void
 		{
 			Camcorder.log('[Camera] onMicrophoneStatus: '+e.code);
+			switch(e.code) {
+				case "Microphone.Unmuted":
+					dispatchEvent(new CameraEvent(CameraEvent.MICROPHONE_READY));
+				break;
+			}
 		}
 
 		private function onMicrophoneSampleData( e:SampleDataEvent ):void
