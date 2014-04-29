@@ -531,7 +531,9 @@ package
 
 		private function onWebcamActivity(e:ActivityEvent):void
 		{
-			dispatchEvent(e);
+			if(!_settingsOpened) {
+				dispatchEvent(e);
+			}
 		}
 
 		private function onMicrophoneStatus(e:StatusEvent):void
