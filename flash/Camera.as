@@ -123,6 +123,8 @@ package
 		private function init(e:Event = null):void
 		{
 
+			Camcorder.log('[Camera] init');
+
 			//Create video player
 			_video = new Video(_width, _height);
 			_video.smoothing = true;
@@ -211,6 +213,9 @@ package
 			stopPublishStream();
 			_video.attachCamera( null );
 			_isReady = false;
+
+			microphone.setLoopBack(false);
+    		microphone = null;
 
 			dispatchEvent(new CameraEvent(CameraEvent.CAMERA_CLEANED));
 		}

@@ -77,6 +77,8 @@ package
 		private function init(e:Event = null):void
 		{
 
+			Camcorder.log('[VCR] init');
+
 			//Create video player
 			if(!_video) {
 				_video = new Video(_videoWidth, _videoHeight);
