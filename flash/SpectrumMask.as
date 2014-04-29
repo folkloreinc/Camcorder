@@ -45,14 +45,20 @@ package
 
             for(var i:uint = 0; i < 360; i += steps) {
 
-                var random:Number = -(Math.random() * currentNoise);
-                if(currentNoise > 100 && Math.random() < 0.3) {
-                    random = -(Math.random() * noise);
+                var angle:Number = i * Math.PI / 180;
+
+                var random:Number;
+                if(i < 45 || (i > 135 && i < 225) || (i > 315 && i <= 360)) {
+                    random = Math.random() * intensity * noise * 2;
+                } else {
+                    random = Math.random() * intensity * noise;
                 }
+
+                /*if(currentNoise > 100 && Math.random() < 0.3) {
+                    random = -(Math.random() * noise);
+                }*/
                 //var randomX:Number = random != 0 ? (random * (width/height)):random;
                 var randomX:Number = random;
-
-                var angle:Number = i * Math.PI / 180;
 
                 var x:Number = Math.round(centerX + (radius + randomX) * Math.cos(angle));
                 var y:Number = Math.round(centerY + (radius + random) * Math.sin(angle));

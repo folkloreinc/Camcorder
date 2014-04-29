@@ -158,7 +158,7 @@ package
 				if (microphone != null && microphone) {
 					
 					microphone.rate = _audioRate;
-					microphone.setUseEchoSuppression(true);
+					microphone.setUseEchoSuppression(false);
 					microphone.setLoopBack(true);
 					microphone.setSilenceLevel(0, 0);
 
