@@ -423,6 +423,13 @@ package
 
         private function onCameraReady( e:Event ):void
         {
+
+            if(!_isReady && _mode == MODE_RECORD) {
+                _isReady = true;
+                notify('ready');
+                return;
+            }
+            
             startSpectrumAnalyzer();
             notify('camera.ready');
         }
