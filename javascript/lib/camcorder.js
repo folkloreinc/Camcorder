@@ -251,7 +251,9 @@ function (
 
         }
 
-        this.trigger(code,value);
+        window.setTimeout($.proxy(function() {
+            this.trigger(code,value);
+        },this),1);
 
     };
 
