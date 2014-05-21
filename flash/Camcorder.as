@@ -30,11 +30,12 @@ package
         /*
          *
          * Constants
-         * 
+         *
          */
         public static const MODE_RECORD : String = "record";
         public static const MODE_PLAYBACK : String = "playback";
 
+        private static const DEFAULT_SPECTRUM : String = 'false';
         private static const DEFAULT_SPECTRUM_RADIUS : Number = 150;
         private static const DEFAULT_SPECTRUM_NOISE : Number = 200;
         private static const DEFAULT_SPECTRUM_POINTS : Number = 360;
@@ -42,7 +43,7 @@ package
         /*
          *
          * Properties
-         * 
+         *
          */
         private static var _debugMode:Boolean;
 
@@ -59,6 +60,7 @@ package
 
         private var _recordId:String;
 
+        private var _spectrum : Boolean;
         private var _spectrumMask:SpectrumMask;
         private var _spectrumByteArray:ByteArray = new ByteArray();
         private var _spectrumRadius : Number;
@@ -80,6 +82,7 @@ package
             _recordId = getStringFlashVar("recordId", createRecordId());
             _debugMode = getStringFlashVar("debugMode", null) == 'true' ? true:false;
 
+            _spectrum = getBooleanFlashVar("spectrum", DEFAULT_SPECTRUM);
             _spectrumRadius = getIntFlashVar("spectrumRadius", DEFAULT_SPECTRUM_RADIUS);
             _spectrumNoise = getIntFlashVar("spectrumNoise", DEFAULT_SPECTRUM_NOISE);
             _spectrumPoints = getIntFlashVar("spectrumPoints", DEFAULT_SPECTRUM_POINTS);
@@ -99,7 +102,7 @@ package
         /*
          *
          *  Init
-         * 
+         *
          */
         private function init():void
         {
@@ -112,7 +115,7 @@ package
             log('------');
 
             initConnection();
-            
+
             //VCR
             _vcr = new VCR(_connection, _recordId);
             _vcr.setSize(stage.stageWidth,stage.stageHeight);
@@ -140,13 +143,15 @@ package
             _camera.addEventListener(CameraEvent.RECORD_READY, onCameraRecordReady);
 
             //Spectrum Mask
-            _spectrumMask = new SpectrumMask();
-            _spectrumMask.radius = _spectrumRadius;
-            _spectrumMask.noise = _spectrumNoise;
-            _spectrumMask.points = _spectrumPoints;
-            _spectrumMask.intensity = 0;
-            addChild(_spectrumMask);
-            _spectrumMask.draw();
+            if(_spectrum) {
+                _spectrumMask = new SpectrumMask();
+                _spectrumMask.radius = _spectrumRadius;
+                _spectrumMask.noise = _spectrumNoise;
+                _spectrumMask.points = _spectrumPoints;
+                _spectrumMask.intensity = 0;
+                addChild(_spectrumMask);
+                _spectrumMask.draw();
+            }
 
             //Resize
             stage.addEventListener(Event.RESIZE, onResize);
@@ -157,11 +162,15 @@ package
             //Add the sprite
             if(_mode == MODE_PLAYBACK) {
                 addChild(_vcr);
-                _vcr.mask = _spectrumMask;
+                if(_spectrumMask) {
+                    _vcr.mask = _spectrumMask;
+                }
                 SoundMixer.soundTransform = new SoundTransform(1.0);
             } else if(_mode == MODE_RECORD) {
                 addChild(_camera);
-                _camera.mask = _spectrumMask;
+                if(_spectrumMask) {
+                    _camera.mask = _spectrumMask;
+                }
                 SoundMixer.soundTransform = new SoundTransform(0);
             }
         }
@@ -179,7 +188,7 @@ package
             {
                 return;
             }
-            
+
             Security.allowDomain('*');
             ExternalInterface.addCallback('record',record);
             ExternalInterface.addCallback('play',play);
@@ -192,13 +201,13 @@ package
             ExternalInterface.addCallback('setSpectrumRadius',setSpectrumRadius);
             ExternalInterface.addCallback('setSpectrumNoise',setSpectrumNoise);
             ExternalInterface.addCallback('setSpectrumPoints',setSpectrumPoints);
-            
+
         }
 
         /*
          *
          *  External interface methods
-         * 
+         *
          */
         private function record(recordId:String = null):void
         {
@@ -297,26 +306,31 @@ package
             if(modeSprite) {
                 _isReady = true;
                 _mode = mode;
-                addChild(_spectrumMask);
                 addChild(modeSprite);
-                modeSprite.mask = _spectrumMask;
+                if(_spectrumMask) {
+                    addChild(_spectrumMask);
+                    modeSprite.mask = _spectrumMask;
+                }
             }
         }
 
         private function setSpectrumRadius(radius:Number):void
         {
+            if(!_spectrumMask) return;
             _spectrumMask.radius = radius;
             _spectrumMask.draw();
         }
 
         private function setSpectrumNoise(noise:Number):void
         {
+            if(!_spectrumMask) return;
             _spectrumMask.noise = noise;
             _spectrumMask.draw();
         }
 
         private function setSpectrumPoints(points:Number):void
         {
+            if(!_spectrumMask) return;
             _spectrumMask.points = points;
             _spectrumMask.draw();
         }
@@ -324,7 +338,7 @@ package
         /*
          *
          *  Private methods
-         * 
+         *
          */
         private function startSpectrumAnalyzer():void
         {
@@ -362,7 +376,7 @@ package
         /*
          *
          *  Event listeners
-         * 
+         *
          */
         private function onResize(e:Event = null):void
         {
@@ -407,7 +421,7 @@ package
         /*
          *
          *  Camera events
-         * 
+         *
          */
         private function onCameraActivity( e:ActivityEvent ):void
         {
@@ -423,20 +437,24 @@ package
 
         private function onCameraReady( e:Event ):void
         {
-            startSpectrumAnalyzer();
+            if(_spectrum) {
+                startSpectrumAnalyzer();
+            }
 
             if(!_isReady && _mode == MODE_RECORD) {
                 _isReady = true;
                 notify('ready');
                 return;
             }
-            
+
             notify('camera.ready');
         }
 
         private function onCameraCleaned( e:Event ):void
         {
-            stopSpectrumAnalyzer();
+            if(_spectrum) {
+                stopSpectrumAnalyzer();
+            }
             notify('camera.cleaned');
         }
 
@@ -483,13 +501,15 @@ package
         /*
          *
          *  VCR events
-         * 
+         *
          */
         private function onVCRReady( e:Event ):void
         {
 
-            _spectrumMask.intensity = 0;
-            _spectrumMask.draw();
+            if(_spectrumMask) {
+                _spectrumMask.intensity = 0;
+                _spectrumMask.draw();
+            }
 
             notify('playback.ready');
 
@@ -502,7 +522,10 @@ package
         private function onVCRPlay( e:Event ):void
         {
             notify('playback.play');
-            startSpectrumAnalyzer();
+
+            if(_spectrum) {
+                startSpectrumAnalyzer();
+            }
         }
 
         private function onVCRPlayed( e:Event ):void
@@ -527,7 +550,9 @@ package
 
         private function onVCRStopped( e:Event ):void
         {
-            stopSpectrumAnalyzer();
+            if(_spectrum) {
+                stopSpectrumAnalyzer();
+            }
             notify('playback.stopped');
         }
 
@@ -539,7 +564,7 @@ package
         /*
          *
          *  Utility methods
-         * 
+         *
          */
         private function createRecordId():String
         {
@@ -550,14 +575,14 @@ package
         /*
          *
          *  Utility methods
-         * 
+         *
          */
-        
+
         private function notify( type:String = null, arguments:Object = null ):void
         {
             if( !_jsCallback || !ExternalInterface.available )
                 return;
-            
+
             ExternalInterface.call( _jsCallback, type, arguments );
 
             if(!arguments) {
@@ -575,13 +600,13 @@ package
                 return value;
             }
         }
-        
+
         private function getIntFlashVar(key:String, value:int):int {
             return parseInt(getStringFlashVar(key, String(value)));
         }
-        
-        private function getBooleanFlashVar(key:String, value:int):int {
-            return parseInt(getStringFlashVar(key, String(value)));
+
+        private function getBooleanFlashVar(key:String, value:String):Boolean {
+            return getStringFlashVar(key, value) === 'true';
         }
 
         public static function log( msg:String, level:String = 'log' ):void
