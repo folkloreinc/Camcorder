@@ -117,6 +117,11 @@ function (
         this._flash.pause();
     };
 
+    Camcorder.prototype.seek = function(time)
+    {
+        this._flash.seek(time);
+    };
+
     Camcorder.prototype.getCurrentTime = function()
     {
         return this._flash.getCurrentTime();

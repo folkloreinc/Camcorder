@@ -194,6 +194,7 @@ package
             ExternalInterface.addCallback('play',play);
             ExternalInterface.addCallback('pause',pause);
             ExternalInterface.addCallback('stop',stop);
+            ExternalInterface.addCallback('seek',seek);
             ExternalInterface.addCallback('reset',reset);
             ExternalInterface.addCallback('setMode',setMode);
             ExternalInterface.addCallback('getCurrentTime',getCurrentTime);
@@ -245,6 +246,15 @@ package
             }
         }
 
+        private function seek( time:Number ):void
+        {
+            if(_mode != MODE_PLAYBACK) {
+                return;
+            }
+
+            _vcr.seek(time);
+        }
+
         private function reset():void
         {
             if(_mode == MODE_PLAYBACK) {
@@ -283,8 +293,10 @@ package
             if(mode == MODE_PLAYBACK) {
 
                 if(_mode == MODE_RECORD) {
-                    stopSpectrumAnalyzer();
-                    removeChild(_spectrumMask);
+                    if(_spectrum) {
+                        stopSpectrumAnalyzer();
+                        removeChild(_spectrumMask);
+                    }
                     removeChild(_camera);
                 }
 
@@ -294,7 +306,9 @@ package
             } else if(mode == MODE_RECORD) {
 
                 if(_mode == MODE_PLAYBACK) {
-                    removeChild(_spectrumMask);
+                    if(_spectrum) {
+                        removeChild(_spectrumMask);
+                    }
                     removeChild(_vcr);
                 }
 
