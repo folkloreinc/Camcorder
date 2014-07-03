@@ -160,6 +160,7 @@ package
 				if (microphone != null && microphone) {
 					
 					microphone.rate = _audioRate;
+					microphone.gain = 60;
 					microphone.setUseEchoSuppression(false);
 					microphone.setLoopBack(true);
 					microphone.setSilenceLevel(0, 0);
@@ -295,6 +296,11 @@ package
 			var recordingEndTime:Date = new Date();
 			recording.duration += (recordingEndTime.time - recordingStartTime.time)/1000;
 			
+		}
+
+		public function getMicrophoneLevel():Number
+		{
+			return microphone ? (microphone.activityLevel/100):0;
 		}
 
 		public function setRecordId(recordId:String)

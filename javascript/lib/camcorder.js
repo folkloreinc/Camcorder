@@ -153,6 +153,11 @@ function (
         this._flash.setVolume(this.options.volume);
     };
 
+    Camcorder.prototype.getMicrophoneLevel = function()
+    {
+        return this._flash.getMicrophoneLevel();
+    };
+
     Camcorder.prototype.setSpectrumRadius = function(radius)
     {
         this._flash.setSpectrumRadius(radius);

@@ -198,6 +198,7 @@ package
             ExternalInterface.addCallback('reset',reset);
             ExternalInterface.addCallback('setMode',setMode);
             ExternalInterface.addCallback('getCurrentTime',getCurrentTime);
+            ExternalInterface.addCallback('getMicrophoneLevel',getMicrophoneLevel);
             ExternalInterface.addCallback('setVolume',setVolume);
             ExternalInterface.addCallback('setSpectrumRadius',setSpectrumRadius);
             ExternalInterface.addCallback('setSpectrumNoise',setSpectrumNoise);
@@ -266,6 +267,15 @@ package
         {
             if(_mode == MODE_PLAYBACK) {
                 return _vcr.getCurrentTime();
+            }
+
+            return 0.0;
+        }
+
+        private function getMicrophoneLevel():Number
+        {
+            if(_mode == MODE_RECORD) {
+                return _camera.getMicrophoneLevel();
             }
 
             return 0.0;

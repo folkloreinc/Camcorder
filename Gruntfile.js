@@ -26,7 +26,7 @@ module.exports = function(grunt) {
                     'javascript/{,*/}*.js',
                     'javascript/lib/{,*/}*.js',
                     '!javascript/vendor/*'
-                    
+
                 ],
                 tasks: ['jshint'],
                 options: {
