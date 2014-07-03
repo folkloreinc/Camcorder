@@ -148,9 +148,6 @@ package
 
 			if (webcam.muted) {
 				showSettings('privacy');
-			} else if(!_isReady) {
-				_isReady = true;
-				dispatchEvent(new CameraEvent(CameraEvent.CAMERA_READY));
 			}
 			
 			// Microphone
@@ -539,6 +536,10 @@ package
 		{
 			if(!_settingsOpened) {
 				dispatchEvent(e);
+				if(!_isReady) {
+					_isReady = true;
+					dispatchEvent(new CameraEvent(CameraEvent.CAMERA_READY));
+				}
 			}
 		}
 

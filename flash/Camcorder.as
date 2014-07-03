@@ -465,12 +465,6 @@ package
                 startSpectrumAnalyzer();
             }
 
-            if(!_isReady && _mode == MODE_RECORD) {
-                _isReady = true;
-                notify('ready');
-                return;
-            }
-
             notify('camera.ready');
         }
 
