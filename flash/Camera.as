@@ -295,7 +295,7 @@ package
 			
 		}
 
-		public function getMicrophoneLevel():Number
+		public function getMicrophoneActivity():Number
 		{
 			return microphone ? (microphone.activityLevel/100):0;
 		}

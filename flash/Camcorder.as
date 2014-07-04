@@ -198,7 +198,8 @@ package
             ExternalInterface.addCallback('reset',reset);
             ExternalInterface.addCallback('setMode',setMode);
             ExternalInterface.addCallback('getCurrentTime',getCurrentTime);
-            ExternalInterface.addCallback('getMicrophoneLevel',getMicrophoneLevel);
+            ExternalInterface.addCallback('getMicrophoneActivity',getMicrophoneActivity);
+            ExternalInterface.addCallback('getMicrophoneIntensity',getMicrophoneIntensity);
             ExternalInterface.addCallback('setVolume',setVolume);
             ExternalInterface.addCallback('setSpectrumRadius',setSpectrumRadius);
             ExternalInterface.addCallback('setSpectrumNoise',setSpectrumNoise);
@@ -272,10 +273,30 @@ package
             return 0.0;
         }
 
-        private function getMicrophoneLevel():Number
+        private function getMicrophoneActivity():Number
         {
             if(_mode == MODE_RECORD) {
-                return _camera.getMicrophoneLevel();
+                return _camera.getMicrophoneActivity();
+            }
+
+            return 0.0;
+        }
+
+        private function getMicrophoneIntensity():Number
+        {
+            if(_mode == MODE_RECORD) {
+                _camera.computeSpectrum(_spectrumByteArray);
+                var intensity:Number = 0;
+                var total:Number = 0;
+                var count:Number = 0;
+
+                _spectrumByteArray.position = 0;
+                while ( _spectrumByteArray.bytesAvailable ) {
+                    total += _spectrumByteArray.readFloat();
+                    count++;
+                }
+                intensity = count > 0 ? Math.abs(total/count):0;
+                return intensity;
             }
 
             return 0.0;
