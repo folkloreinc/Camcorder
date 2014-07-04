@@ -201,6 +201,7 @@ package
             ExternalInterface.addCallback('getMicrophoneActivity',getMicrophoneActivity);
             ExternalInterface.addCallback('getMicrophoneIntensity',getMicrophoneIntensity);
             ExternalInterface.addCallback('setVolume',setVolume);
+            ExternalInterface.addCallback('setMicrophoneGain',setMicrophoneGain);
             ExternalInterface.addCallback('setSpectrumRadius',setSpectrumRadius);
             ExternalInterface.addCallback('setSpectrumNoise',setSpectrumNoise);
             ExternalInterface.addCallback('setSpectrumPoints',setSpectrumPoints);
@@ -310,6 +311,13 @@ package
                 }
                 _playbackIntensityFactor = volume;
                 SoundMixer.soundTransform = new SoundTransform(volume);
+            }
+        }
+
+        private function setMicrophoneGain(gain:Number):void
+        {
+            if(_mode == MODE_RECORD) {
+                _camera.setMicrophoneGain(gain);
             }
         }
 

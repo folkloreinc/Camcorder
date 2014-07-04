@@ -157,7 +157,7 @@ package
 				if (microphone != null && microphone) {
 					
 					microphone.rate = _audioRate;
-					microphone.gain = 60;
+					microphone.gain = 50;
 					microphone.setUseEchoSuppression(false);
 					microphone.setLoopBack(true);
 					microphone.setSilenceLevel(0, 0);
@@ -298,6 +298,13 @@ package
 		public function getMicrophoneActivity():Number
 		{
 			return microphone ? (microphone.activityLevel/100):0;
+		}
+
+		public function setMicrophoneGain(gain:Number)
+		{
+			if(microphone) {
+				microphone.gain = gain;
+			}
 		}
 
 		public function setRecordId(recordId:String)
