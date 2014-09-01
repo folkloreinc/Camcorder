@@ -400,7 +400,7 @@ package
 		public function snapshot():String
 		{
 			if(!_snapshotData) {
-				_snapshotData = new BitmapData(_webcamWidth,_webcamHeight);
+				_snapshotData = new BitmapData(_width, _height);
 			}
 			
 			_snapshotData.draw(_video);
