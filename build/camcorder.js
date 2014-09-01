@@ -1232,6 +1232,11 @@ function (
         this._flash.setSpectrumPoints(points);
     };
 
+    Camcorder.prototype.snapshot = function()
+    {
+        return this._flash.snapshot();
+    };
+
     Camcorder.prototype.destroy = function() {
 
         this.off();

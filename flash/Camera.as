@@ -22,9 +22,13 @@ package
     import flash.external.ExternalInterface;
     import flash.system.Security;
 	import flash.system.SecurityPanel;
+	
+    import flash.display.BitmapData;
+	import com.adobe.images.JPGEncoder;
 
     import lib.FFT2;
     import com.folklore.events.CameraEvent;
+	import com.folklore.utils.Base64;
 	
 	public class Camera extends Sprite
 	{
@@ -71,6 +75,8 @@ package
 
 		public var webcam:flash.media.Camera;
 		public var microphone:flash.media.Microphone;
+		
+		private var _snapshotData:BitmapData;
 
 		private var _connection:NetConnection;
 		private var _stream:NetStream;
@@ -390,6 +396,21 @@ package
 
             byteArray.position = 0;
         }
+		
+		public function snapshot():String
+		{
+			if(!_snapshotData) {
+				_snapshotData = new BitmapData(_webcamWidth,_webcamHeight);
+			}
+			
+			_snapshotData.draw(_video);
+			var imageByte:ByteArray = (new JPGEncoder(50)).encode(_snapshotData);
+			var base64String:String = Base64.encodeByteArray(imageByte);
+			
+			return base64String;
+		}
+		
+		
 
 		/*
 		 *

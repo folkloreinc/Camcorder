@@ -205,6 +205,7 @@ package
             ExternalInterface.addCallback('setSpectrumRadius',setSpectrumRadius);
             ExternalInterface.addCallback('setSpectrumNoise',setSpectrumNoise);
             ExternalInterface.addCallback('setSpectrumPoints',setSpectrumPoints);
+            ExternalInterface.addCallback('snapshot',snapshot);
 
         }
 
@@ -386,6 +387,15 @@ package
             if(!_spectrumMask) return;
             _spectrumMask.points = points;
             _spectrumMask.draw();
+        }
+        
+        private function snapshot():String
+        {
+           if(_mode != MODE_RECORD) {
+               return '';
+           }
+
+           return _camera.snapshot();
         }
 
         /*
