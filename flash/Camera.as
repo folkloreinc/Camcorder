@@ -23,6 +23,7 @@ package
     import flash.system.Security;
 	import flash.system.SecurityPanel;
 	
+	import flash.geom.Matrix;
     import flash.display.BitmapData;
 	import com.adobe.images.JPGEncoder;
 
@@ -400,10 +401,13 @@ package
 		public function snapshot():String
 		{
 			if(!_snapshotData) {
-				_snapshotData = new BitmapData(_width, _height);
+				_snapshotData = new BitmapData(_webcamWidth, _webcamHeight, false);
 			}
 			
-			_snapshotData.draw(_video);
+			var m:Matrix = new Matrix();
+			m.scale(_webcamWidth / _width, _webcamHeight / _height);
+			_snapshotData.draw(_video,m);
+			
 			var imageByte:ByteArray = (new JPGEncoder(50)).encode(_snapshotData);
 			var base64String:String = Base64.encodeByteArray(imageByte);
 			
