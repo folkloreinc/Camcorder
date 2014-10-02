@@ -42,8 +42,9 @@ function (
         },options);
 
         this.mode = this.options.mode;
-        this.id = this.options.recordId || ('camcorder_'+(new Date()).getTime());
-        this.callbackName = this.id+'_listener';
+        this.uniqueId = 'camcorder_'+(new Date()).getTime();
+        this.recordId = this.options.recordId || this.uniqueId;
+        this.callbackName = this.uniqueId+'_listener';
         this._flash = null;
 
         this.recording = false;
@@ -136,6 +137,12 @@ function (
         this.recording = false;
         this.paused = false;
     };
+    
+    Camcorder.prototype.setRecordId = function(recordId)
+    {
+        this.recordId = recordId;
+        this._flash.setRecordId(recordId);
+    };
 
     Camcorder.prototype.setVolume = function(volume)
     {
@@ -187,7 +194,7 @@ function (
 
         this.off();
 
-        this.el.find('#'+this.id).remove();
+        this.el.find('#'+this.uniqueId).remove();
         window[this.callbackName] = null;
 
     };
@@ -195,7 +202,7 @@ function (
     Camcorder.prototype._embedSWF = function() {
 
         var html = this.options.template({
-            id: this.id
+            id: this.uniqueId
         });
         var $container = $(html);
         this.el.append($container);
@@ -204,21 +211,21 @@ function (
             'mode' : this.mode,
             'serverURL' : this.options.serverURL,
             'jsCallback' : this.callbackName,
-            'recordId' : this.id,
+            'recordId' : this.recordId,
             'debugMode' : this.options.debugMode ? 'true':'false'
         },this.options.flashVars);
 
         var params = this.options.params;
 
         var attr = {
-            'id' : this.id
+            'id' : this.uniqueId
         };
 
         var swfDir = this.options.swf.replace(/\/?$/,'/');
         var src = swfDir+'camcorder.swf';
         //var src = swfDir+'camcorder'+(this.flashVersion === 9 ? '_basic':'')+'.swf';
         var expressInstall = swfDir+this.options.expressInstall;
-        var el = this.el.find('#'+this.id)[0];
+        var el = this.el.find('#'+this.uniqueId)[0];
 
         swfobject.embedSWF(src, el, '100%', '100%', '9.0.0', expressInstall, flashVars, params, attr, $.proxy(this._handleFlashReady,this));
     };

@@ -196,15 +196,18 @@ package
             ExternalInterface.addCallback('stop',stop);
             ExternalInterface.addCallback('seek',seek);
             ExternalInterface.addCallback('reset',reset);
+            
             ExternalInterface.addCallback('setMode',setMode);
-            ExternalInterface.addCallback('getCurrentTime',getCurrentTime);
-            ExternalInterface.addCallback('getMicrophoneActivity',getMicrophoneActivity);
-            ExternalInterface.addCallback('getMicrophoneIntensity',getMicrophoneIntensity);
+            ExternalInterface.addCallback('setRecordId',setRecordId);
             ExternalInterface.addCallback('setVolume',setVolume);
             ExternalInterface.addCallback('setMicrophoneGain',setMicrophoneGain);
             ExternalInterface.addCallback('setSpectrumRadius',setSpectrumRadius);
             ExternalInterface.addCallback('setSpectrumNoise',setSpectrumNoise);
             ExternalInterface.addCallback('setSpectrumPoints',setSpectrumPoints);
+            
+            ExternalInterface.addCallback('getCurrentTime',getCurrentTime);
+            ExternalInterface.addCallback('getMicrophoneActivity',getMicrophoneActivity);
+            ExternalInterface.addCallback('getMicrophoneIntensity',getMicrophoneIntensity);
             ExternalInterface.addCallback('snapshot',snapshot);
 
         }
@@ -366,6 +369,14 @@ package
                     modeSprite.mask = _spectrumMask;
                 }
             }
+        }
+        
+        private function setRecordId(recordId:String = null):void
+        {
+            _recordId = recordId;
+            _camera.setRecordId(recordId);
+            _vcr.setRecordId(recordId);
+            log('Record ID: '+_recordId);
         }
 
         private function setSpectrumRadius(radius:Number):void

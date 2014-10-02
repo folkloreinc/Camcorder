@@ -59,7 +59,7 @@ package
 			_connection = connection;
 
 			if(recordId) {
-				_recordId = recordId;
+				setRecordId(recordId);
 			}
 
 			if (stage && root) init();
@@ -135,7 +135,7 @@ package
 		public function play(recordId:String = null):void
 		{
 			if(recordId) {
-				_recordId = recordId;
+				setRecordId(recordId);
 			}
 
 			dispatchEvent(new VCREvent(VCREvent.PLAY));
@@ -231,6 +231,11 @@ package
 		public function computeSpectrum(byteArray:ByteArray):void
 		{
 			SoundMixer.computeSpectrum(byteArray,true,0);
+		}
+		
+		public function setRecordId(recordId:String)
+		{
+			_recordId = recordId;
 		}
 
 		/*
