@@ -137,6 +137,8 @@ package
 			_video.smoothing = true;
 			_video.x = 0;
 			_video.y = 0;
+			_video.scaleX = -1;
+			_video.x = _video.width + _video.x;
 			addChild( _video );
 
 			//Webcam
@@ -532,6 +534,10 @@ package
 			_video.height = videoHeight;
 			_video.x = videoX;
 			_video.y = videoY;
+			
+			//Flip the video
+			_video.scaleX = -1;
+			_video.x = _video.width + _video.x;
 		}
 
 		private function onMouseMove(e:Event):void {
