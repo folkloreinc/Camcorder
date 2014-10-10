@@ -80,6 +80,7 @@ package
 		public var microphone:flash.media.Microphone;
 		
 		private var _snapshotData:BitmapData;
+		private var _snapshotDataFlipped:BitmapData;
 
 		private var _connection:NetConnection;
 		private var _stream:NetStream;
@@ -418,11 +419,21 @@ package
 				_snapshotData = new BitmapData(_webcamWidth, _webcamHeight, false);
 			}
 			
-			var m:Matrix = new Matrix();
-			m.scale(_webcamWidth / _width, _webcamHeight / _height);
-			_snapshotData.draw(_video,m);
+			if(!_snapshotDataFlipped) {
+				_snapshotDataFlipped = new BitmapData(_webcamWidth, _webcamHeight, true, 0);
+			}
 			
-			var imageByte:ByteArray = (new JPGEncoder(50)).encode(_snapshotData);
+			//Resize
+			var resizeMatrix:Matrix = new Matrix();
+			resizeMatrix.scale(_webcamWidth / _width, _webcamHeight / _height);
+			_snapshotData.draw(_video,resizeMatrix);
+			
+			//Flip
+		    var flippedMatrix:Matrix = new Matrix( -1, 0, 0, 1, _webcamWidth, 0);
+		    _snapshotDataFlipped.draw(_snapshotData, flippedMatrix, null, null, null, true);
+			
+			//Encode JPEG
+			var imageByte:ByteArray = (new JPGEncoder(50)).encode(_snapshotDataFlipped);
 			var base64String:String = Base64.encodeByteArray(imageByte);
 			
 			return base64String;
