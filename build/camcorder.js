@@ -1224,21 +1224,6 @@ function (
         return this._flash.getMicrophoneIntensity();
     };
 
-    Camcorder.prototype.setSpectrumRadius = function(radius)
-    {
-        this._flash.setSpectrumRadius(radius);
-    };
-
-    Camcorder.prototype.setSpectrumNoise = function(noise)
-    {
-        this._flash.setSpectrumNoise(noise);
-    };
-
-    Camcorder.prototype.setSpectrumPoints = function(points)
-    {
-        this._flash.setSpectrumPoints(points);
-    };
-
     Camcorder.prototype.snapshot = function()
     {
         return this._flash.snapshot();

@@ -87,14 +87,8 @@
 					'wmode' : 'transparent'
 				},
             	'flashVars': {
-            		'spectrumRadius' : Math.round(window.innerHeight/2)-20,
-            		'spectrumNoise' : Math.round(window.innerHeight*0.3)
+            		
             	}
-			});
-
-			$(window).resize(function() {
-				camera.setSpectrumRadius(Math.round(window.innerHeight/2)-20);
-				camera.setSpectrumNoise(Math.round(window.innerHeight*0.3));
 			});
 
 			$('button.record').click(function(e) {
