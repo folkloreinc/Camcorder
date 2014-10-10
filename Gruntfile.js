@@ -178,7 +178,7 @@ module.exports = function(grunt) {
         mxmlc: {
             options: {
                 //rawConfig: '-source-path=/www/_lib/as3corelib/src/ -target-player=9.0 -external-library-path=node_modules/flex-sdk/lib/flex_sdk/frameworks/libs/player/9.0/playerglobal.swc -library-path=node_modules/flex-sdk/lib/flex_sdk/frameworks/libs/player/9.0'
-                rawConfig: '-source-path=/www/_lib/as3corelib/src/ -target-player=11.0'
+                rawConfig: '-source-path=./flash/vendor/ -target-player=11.0'
             },
             server: {
                 files: {

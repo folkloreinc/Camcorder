@@ -28,7 +28,7 @@ package
 	import com.adobe.images.JPGEncoder;
 
     import lib.FFT2;
-    import com.folklore.events.CameraEvent;
+    import events.CameraEvent;
 	import com.folklore.utils.Base64;
 	
 	public class Camera extends Sprite
@@ -106,7 +106,7 @@ package
         private const N:int = 1 << LOGN;
         private const BUF_LEN:int = N;
 		
-		public function Camera(connection:NetConnection, recordId:String = null)
+		public function Camera(connection:NetConnection = null, recordId:String = null)
 		{
 
 			_connection = connection;
@@ -129,7 +129,7 @@ package
 		 */
 		private function init(e:Event = null):void
 		{
-
+		
 			Camcorder.log('[Camera] init');
 
 			//Create video player
@@ -239,6 +239,11 @@ package
 				Camcorder.log('[Camera] Already recording');
 				return;
 			}
+			
+			if(!_connection) {
+				Camcorder.log('[Camera] cannot record, not connected to a server','error');
+				return;
+			}
 
 			if(recordId) {
 				setRecordId(recordId);
@@ -330,7 +335,7 @@ package
 
 			this._settingsOpened = true;
 
-			Camcorder.log('Opening security panel');
+			Camcorder.log('[Camera] Opening security panel');
 
 			if (key == null) {
 				key = SecurityPanel.CAMERA;
@@ -338,6 +343,8 @@ package
 			Security.showSettings(key);
 
 			root.stage.addEventListener(MouseEvent.MOUSE_OVER, onMouseMove);
+			
+			dispatchEvent(new CameraEvent(CameraEvent.SECURITY_OPEN));
             
 		}
 
@@ -542,16 +549,19 @@ package
 
 		private function onMouseMove(e:Event):void {
 			
+			Camcorder.log('[Camera] Security panel closed');
+			
 			_settingsOpened = false;
 
             root.stage.removeEventListener(MouseEvent.MOUSE_OVER, onMouseMove);
+			
+			dispatchEvent(new CameraEvent(CameraEvent.SECURITY_CLOSE));
 
 			if(!_isReady && _cameraReady) {
 				_isReady = true;
 				dispatchEvent(new CameraEvent(CameraEvent.CAMERA_READY));
 			}
 
-			Camcorder.log('Security panel closed');
         }
 
 		private function onWebcamStatus(e:StatusEvent):void

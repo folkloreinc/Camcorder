@@ -17,7 +17,7 @@ package
 
     import flash.utils.ByteArray;
     
-    import com.folklore.events.VCREvent;
+    import events.VCREvent;
 	
 	public class VCR extends Sprite
 	{
@@ -53,7 +53,7 @@ package
 
 		private var _recordId:String;
 		
-		public function VCR(connection:NetConnection, recordId:String = null)
+		public function VCR(connection:NetConnection = null, recordId:String = null)
 		{
 
 			_connection = connection;
@@ -76,7 +76,7 @@ package
 		 */
 		private function init(e:Event = null):void
 		{
-
+		
 			Camcorder.log('[VCR] init');
 
 			//Create video player
@@ -90,7 +90,7 @@ package
 
 			onResize();
 
-			if(_recordId) {
+			if(_recordId && _connection) {
 				if (_connection.connected) resetVideo();
             	else _connection.addEventListener(NetStatusEvent.NET_STATUS, onConnectionStatus);
 			} else {
@@ -112,12 +112,19 @@ package
 
 		private function resetVideo():void
 		{
+			
+			if(!_connection)
+			{
+				Camcorder.log('[VCR] Cannot reset video, not connected to a server','error');
+				return;
+			}
+			
 			if(_recordId) {
 				_isResetting = true;
 				_isResettingPlayed = false;
 				_isResettingPaused = false;
 				_isPaused = true;
-
+				
 				startPlayStream();
 
 				_stream.play( _recordId );
@@ -134,6 +141,12 @@ package
 
 		public function play(recordId:String = null):void
 		{
+			if(!_connection)
+			{
+				Camcorder.log('[VCR] Cannot play video, not connected to a server','error');
+				return;
+			}
+			
 			if(recordId) {
 				setRecordId(recordId);
 			}

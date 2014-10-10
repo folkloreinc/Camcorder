@@ -12,7 +12,8 @@ package
     import flash.media.SoundMixer;
     import flash.media.SoundTransform;
 
-    import flash.net.NetConnection;
+    //import flash.net.NetConnection;
+    import com.gearsandcogs.utils.NetConnectionSmart;
 
     import flash.utils.ByteArray;
 
@@ -22,8 +23,8 @@ package
     import VCR;
     import Camera;
 
-    import com.folklore.events.VCREvent;
-    import com.folklore.events.CameraEvent;
+    import events.VCREvent;
+    import events.CameraEvent;
 
     public class Camcorder extends Sprite
     {
@@ -35,11 +36,6 @@ package
         public static const MODE_RECORD : String = "record";
         public static const MODE_PLAYBACK : String = "playback";
 
-        private static const DEFAULT_SPECTRUM : String = 'false';
-        private static const DEFAULT_SPECTRUM_RADIUS : Number = 150;
-        private static const DEFAULT_SPECTRUM_NOISE : Number = 200;
-        private static const DEFAULT_SPECTRUM_POINTS : Number = 360;
-
         /*
          *
          * Properties
@@ -47,25 +43,20 @@ package
          */
         private static var _debugMode:Boolean;
 
-        private var _connection:NetConnection;
+        private var _connection:NetConnectionSmart;
+        private var _isConnected:Boolean = false;
+        private var _serverURL:String;
 
         private var _vcr:VCR;
         private var _camera:Camera;
-
-        private var _serverURL:String;
-        private var _mode:String;
-        private var _jsCallback:String;
-
+        
         private var _isReady:Boolean = false;
 
+        private var _mode:String;
         private var _recordId:String;
+        private var _jsCallback:String;
 
-        private var _spectrum : Boolean;
-        private var _spectrumMask:SpectrumMask;
         private var _spectrumByteArray:ByteArray = new ByteArray();
-        private var _spectrumRadius : Number;
-        private var _spectrumNoise : Number;
-        private var _spectrumPoints : Number;
 
         private var _playbackIntensityFactor : Number = 0.2;
 
@@ -81,11 +72,6 @@ package
             _mode = getStringFlashVar("mode", MODE_RECORD);
             _recordId = getStringFlashVar("recordId", createRecordId());
             _debugMode = getStringFlashVar("debugMode", null) == 'true' ? true:false;
-
-            _spectrum = getBooleanFlashVar("spectrum", DEFAULT_SPECTRUM);
-            _spectrumRadius = getIntFlashVar("spectrumRadius", DEFAULT_SPECTRUM_RADIUS);
-            _spectrumNoise = getIntFlashVar("spectrumNoise", DEFAULT_SPECTRUM_NOISE);
-            _spectrumPoints = getIntFlashVar("spectrumPoints", DEFAULT_SPECTRUM_POINTS);
 
             //Validate
             if(!_serverURL) {
@@ -107,29 +93,72 @@ package
         private function init():void
         {
 
-
             log('Init');
             log('Mode: '+_mode);
             log('Record ID: '+_recordId);
-            log('Server URL: '+_serverURL);
+            if(_serverURL) {
+                log('Server URL: '+_serverURL);
+            }
             log('------');
+            
+            if(_serverURL && _serverURL.length) {
+                initConnection();
+            } else {
+                initCamera();
+                initVCR();
+            }
 
-            initConnection();
+            //Resize
+            stage.addEventListener(Event.RESIZE, onResize);
 
-            //VCR
-            _vcr = new VCR(_connection, _recordId);
-            _vcr.setSize(stage.stageWidth,stage.stageHeight);
-            _vcr.addEventListener(VCREvent.READY, onVCRReady);
-            _vcr.addEventListener(VCREvent.PLAY, onVCRPlay);
-            _vcr.addEventListener(VCREvent.PLAYED, onVCRPlayed);
-            _vcr.addEventListener(VCREvent.PAUSE, onVCRPause);
-            _vcr.addEventListener(VCREvent.PAUSED, onVCRPaused);
-            _vcr.addEventListener(VCREvent.STOP, onVCRStop);
-            _vcr.addEventListener(VCREvent.STOPPED, onVCRStopped);
-            _vcr.addEventListener(VCREvent.ENDED, onVCREnded);
+            //JS Api
+            initJSApi();
+        }
 
+        private function initConnection():void
+        {
+            _connection = new NetConnectionSmart();
+            _connection.addEventListener( NetStatusEvent.NET_STATUS, onConnectionStatus );
+            _connection.connect(_serverURL);
+        }
+
+        private function initJSApi():void
+        {
+            if( !ExternalInterface.available )
+            {
+                log('ExternalInterface is not accessible' , 'error');
+                return;
+            }
+
+            Security.allowDomain('*');
+            
+            ExternalInterface.addCallback('record',record);
+            ExternalInterface.addCallback('play',play);
+            ExternalInterface.addCallback('pause',pause);
+            ExternalInterface.addCallback('stop',stop);
+            ExternalInterface.addCallback('seek',seek);
+            
+            ExternalInterface.addCallback('reset',reset);
+            
+            ExternalInterface.addCallback('setMode',setMode);
+            ExternalInterface.addCallback('setRecordId',setRecordId);
+            ExternalInterface.addCallback('setVolume',setVolume);
+            ExternalInterface.addCallback('setMicrophoneGain',setMicrophoneGain);
+            
+            ExternalInterface.addCallback('getCurrentTime',getCurrentTime);
+            ExternalInterface.addCallback('getMicrophoneActivity',getMicrophoneActivity);
+            ExternalInterface.addCallback('getMicrophoneIntensity',getMicrophoneIntensity);
+            
+            ExternalInterface.addCallback('snapshot',snapshot);
+
+        }
+        
+        private function initCamera():void
+        {
+            log('Init Camera');
+            
             //Camera
-            _camera = new Camera(_connection, _recordId);
+            _camera = new Camera(_connection ? _connection.connection:null, _recordId);
             _camera.setSize(stage.stageWidth,stage.stageHeight);
             _camera.addEventListener(ActivityEvent.ACTIVITY, onCameraActivity);
             _camera.addEventListener(CameraEvent.MICROPHONE_READY, onCameraMicrophoneReady);
@@ -141,77 +170,36 @@ package
             _camera.addEventListener(CameraEvent.RECORD_STOP, onCameraRecordStop);
             _camera.addEventListener(CameraEvent.RECORD_STOPPED, onCameraRecordStopped);
             _camera.addEventListener(CameraEvent.RECORD_READY, onCameraRecordReady);
-
-            //Spectrum Mask
-            if(_spectrum) {
-                _spectrumMask = new SpectrumMask();
-                _spectrumMask.radius = _spectrumRadius;
-                _spectrumMask.noise = _spectrumNoise;
-                _spectrumMask.points = _spectrumPoints;
-                _spectrumMask.intensity = 0;
-                addChild(_spectrumMask);
-                _spectrumMask.draw();
-            }
-
-            //Resize
-            stage.addEventListener(Event.RESIZE, onResize);
-
-            //JS Api
-            initJSApi();
-
-            //Add the sprite
-            if(_mode == MODE_PLAYBACK) {
-                addChild(_vcr);
-                if(_spectrumMask) {
-                    _vcr.mask = _spectrumMask;
-                }
-                SoundMixer.soundTransform = new SoundTransform(1.0);
-            } else if(_mode == MODE_RECORD) {
+            _camera.addEventListener(CameraEvent.SECURITY_OPEN, onCameraSecurityOpen);
+            _camera.addEventListener(CameraEvent.SECURITY_CLOSE, onCameraSecurityClose);
+            
+            if(_mode == MODE_RECORD) {
                 addChild(_camera);
-                if(_spectrumMask) {
-                    _camera.mask = _spectrumMask;
-                }
                 SoundMixer.soundTransform = new SoundTransform(0);
             }
         }
-
-        private function initConnection():void
+        
+        private function initVCR():void
         {
-            _connection = new NetConnection();
-            _connection.addEventListener( NetStatusEvent.NET_STATUS, onConnectionStatus );
-            _connection.connect(_serverURL );
-        }
-
-        private function initJSApi():void
-        {
-            if( !ExternalInterface.available )
-            {
-                return;
+            log('Init VCR');
+            
+            //VCR
+            _vcr = new VCR(_connection ? _connection.connection:null, _recordId);
+            _vcr.setSize(stage.stageWidth,stage.stageHeight);
+            _vcr.addEventListener(VCREvent.READY, onVCRReady);
+            _vcr.addEventListener(VCREvent.PLAY, onVCRPlay);
+            _vcr.addEventListener(VCREvent.PLAYED, onVCRPlayed);
+            _vcr.addEventListener(VCREvent.PAUSE, onVCRPause);
+            _vcr.addEventListener(VCREvent.PAUSED, onVCRPaused);
+            _vcr.addEventListener(VCREvent.STOP, onVCRStop);
+            _vcr.addEventListener(VCREvent.STOPPED, onVCRStopped);
+            _vcr.addEventListener(VCREvent.ENDED, onVCREnded);
+            
+            if(_mode == MODE_PLAYBACK) {
+                addChild(_vcr);
+                SoundMixer.soundTransform = new SoundTransform(1.0);
             }
-
-            Security.allowDomain('*');
-            ExternalInterface.addCallback('record',record);
-            ExternalInterface.addCallback('play',play);
-            ExternalInterface.addCallback('pause',pause);
-            ExternalInterface.addCallback('stop',stop);
-            ExternalInterface.addCallback('seek',seek);
-            ExternalInterface.addCallback('reset',reset);
-            
-            ExternalInterface.addCallback('setMode',setMode);
-            ExternalInterface.addCallback('setRecordId',setRecordId);
-            ExternalInterface.addCallback('setVolume',setVolume);
-            ExternalInterface.addCallback('setMicrophoneGain',setMicrophoneGain);
-            ExternalInterface.addCallback('setSpectrumRadius',setSpectrumRadius);
-            ExternalInterface.addCallback('setSpectrumNoise',setSpectrumNoise);
-            ExternalInterface.addCallback('setSpectrumPoints',setSpectrumPoints);
-            
-            ExternalInterface.addCallback('getCurrentTime',getCurrentTime);
-            ExternalInterface.addCallback('getMicrophoneActivity',getMicrophoneActivity);
-            ExternalInterface.addCallback('getMicrophoneIntensity',getMicrophoneIntensity);
-            ExternalInterface.addCallback('snapshot',snapshot);
-
         }
-
         /*
          *
          *  External interface methods
@@ -220,26 +208,42 @@ package
         private function record(recordId:String = null):void
         {
             if(_mode != MODE_RECORD) {
+                log('Cannot record, not in record mode' , 'error');
+                return;
+            } else if(!_camera) {
+                log('Cannot record, camera not ready' , 'error');
                 return;
             }
-
+            
             _camera.record(recordId);
         }
 
         private function play(recordId:String = null):void
         {
             if(_mode != MODE_PLAYBACK) {
+                log('Cannot play, not in playback mode' , 'error');
+                return;
+            } else if(!_vcr) {
+                log('Cannot play, vcr not ready' , 'error');
                 return;
             }
-
+            
             _vcr.play(recordId);
         }
 
         private function pause():void
         {
             if(_mode == MODE_PLAYBACK) {
+                if(!_vcr) {
+                    log('Cannot pause, vcr not ready' , 'error');
+                    return;
+                }
                 _vcr.pause();
             } else if(_mode == MODE_RECORD) {
+                if(!_camera) {
+                    log('Cannot pause, camera not ready' , 'error');
+                    return;
+                }
                 _camera.pause();
             }
         }
@@ -247,8 +251,16 @@ package
         private function stop():void
         {
             if(_mode == MODE_PLAYBACK) {
+                if(!_vcr) {
+                    log('Cannot stop, vcr not ready' , 'error');
+                    return;
+                }
                 _vcr.stop();
             } else if(_mode == MODE_RECORD) {
+                if(!_camera) {
+                    log('Cannot stop, camera not ready' , 'error');
+                    return;
+                }
                 _camera.stop();
             }
         }
@@ -256,6 +268,10 @@ package
         private function seek( time:Number ):void
         {
             if(_mode != MODE_PLAYBACK) {
+                log('Cannot seek, not in playback mode' , 'error');
+                return;
+            } else if(!_vcr) {
+                log('Cannot seek, vcr not ready' , 'error');
                 return;
             }
 
@@ -264,14 +280,14 @@ package
 
         private function reset():void
         {
-            if(_mode == MODE_PLAYBACK) {
+            if(_mode == MODE_PLAYBACK && _vcr) {
                 _vcr.reset();
             }
         }
 
         private function getCurrentTime():Number
         {
-            if(_mode == MODE_PLAYBACK) {
+            if(_mode == MODE_PLAYBACK && _vcr) {
                 return _vcr.getCurrentTime();
             }
 
@@ -280,7 +296,7 @@ package
 
         private function getMicrophoneActivity():Number
         {
-            if(_mode == MODE_RECORD) {
+            if(_mode == MODE_RECORD && _camera) {
                 return _camera.getMicrophoneActivity();
             }
 
@@ -289,7 +305,7 @@ package
 
         private function getMicrophoneIntensity():Number
         {
-            if(_mode == MODE_RECORD) {
+            if(_mode == MODE_RECORD && _camera) {
                 _camera.computeSpectrum(_spectrumByteArray);
                 var intensity:Number = 0;
                 var total:Number = 0;
@@ -320,6 +336,11 @@ package
 
         private function setMicrophoneGain(gain:Number):void
         {
+            if(!_camera) {
+                log('Cannot set microphone gain, camera not ready' , 'error');
+                return;
+            }
+            
             if(_mode == MODE_RECORD) {
                 _camera.setMicrophoneGain(gain);
             }
@@ -335,27 +356,24 @@ package
             var modeSprite:Sprite;
             if(mode == MODE_PLAYBACK) {
 
-                if(_mode == MODE_RECORD) {
-                    if(_spectrum) {
-                        stopSpectrumAnalyzer();
-                        removeChild(_spectrumMask);
-                    }
+                if(_mode == MODE_RECORD && _camera) {
                     removeChild(_camera);
                 }
 
-                modeSprite = _vcr;
+                if(_vcr) {
+                    modeSprite = _vcr;
+                }
                 SoundMixer.soundTransform = new SoundTransform(1.0);
 
             } else if(mode == MODE_RECORD) {
 
-                if(_mode == MODE_PLAYBACK) {
-                    if(_spectrum) {
-                        removeChild(_spectrumMask);
-                    }
+                if(_mode == MODE_PLAYBACK && _vcr) {
                     removeChild(_vcr);
                 }
-
-                modeSprite = _camera;
+                
+                if(_camera) {
+                    modeSprite = _camera;
+                }
                 SoundMixer.soundTransform = new SoundTransform(0);
 
             }
@@ -364,46 +382,32 @@ package
                 _isReady = true;
                 _mode = mode;
                 addChild(modeSprite);
-                if(_spectrumMask) {
-                    addChild(_spectrumMask);
-                    modeSprite.mask = _spectrumMask;
-                }
             }
         }
         
         private function setRecordId(recordId:String = null):void
         {
             _recordId = recordId;
-            _camera.setRecordId(recordId);
-            _vcr.setRecordId(recordId);
+            if(_camera) {
+                _camera.setRecordId(recordId);
+            }
+            if(_vcr) {
+                _vcr.setRecordId(recordId);
+            }
             log('Record ID: '+_recordId);
-        }
-
-        private function setSpectrumRadius(radius:Number):void
-        {
-            if(!_spectrumMask) return;
-            _spectrumMask.radius = radius;
-            _spectrumMask.draw();
-        }
-
-        private function setSpectrumNoise(noise:Number):void
-        {
-            if(!_spectrumMask) return;
-            _spectrumMask.noise = noise;
-            _spectrumMask.draw();
-        }
-
-        private function setSpectrumPoints(points:Number):void
-        {
-            if(!_spectrumMask) return;
-            _spectrumMask.points = points;
-            _spectrumMask.draw();
         }
         
         private function snapshot():String
         {
+        
            if(_mode != MODE_RECORD) {
-               return '';
+               log('Cannot take a snapshot, not in record mode' , 'error');
+               return null;
+           }
+           
+           if(!_camera) {
+               log('Cannot take a snapshot, camera not ready' , 'error');
+               return null;
            }
 
            return _camera.snapshot();
@@ -441,10 +445,7 @@ package
             if(_mode == MODE_PLAYBACK)
             {
                 intensity = intensity/this._playbackIntensityFactor;
-            }
-
-            _spectrumMask.intensity = intensity;
-            _spectrumMask.draw();
+            };
         }
 
         /*
@@ -455,26 +456,45 @@ package
         private function onResize(e:Event = null):void
         {
             log('Resize: '+stage.stageWidth+'x'+stage.stageHeight);
-
-            _vcr.setSize(stage.stageWidth, stage.stageHeight);
-            _camera.setSize(stage.stageWidth, stage.stageHeight);
+            
+            if(_vcr)
+            {
+                _vcr.setSize(stage.stageWidth, stage.stageHeight);
+            }
+            
+            if(_camera)
+            {
+                _camera.setSize(stage.stageWidth, stage.stageHeight);
+            }
         }
 
         private function onConnectionStatus( e:NetStatusEvent ):void
         {
-
             log(e.info.code+': '+e.info.description);
 
             switch(e.info.code) {
 
                 case "NetConnection.Connect.Success":
+                    _isConnected = true;
                     notify('connection.ready');
+                    if(!_camera) {
+                        initCamera();
+                    }
+                    if(!_vcr) {
+                        this.initVCR();
+                    }
                 break;
 
                 case "NetConnection.Connect.Failed":
                 case "NetConnection.Connect.Rejected":
+                    _isConnected = false;
                     notify('connection.error',e.info);
                     log( 'Couldn\'t connect to the server. Error: ' + e.info.description , 'error');
+                break;
+                
+                case "NetConnection.Connect.Closed":
+                    _isConnected = false;
+                    notify('connection.closed');
                 break;
 
             }
@@ -482,14 +502,19 @@ package
 
         private function onEnterFrame(e:Event = null):void
         {
-
-            if(_mode == MODE_PLAYBACK) {
+            var hasUpdated:Boolean = false;
+            
+            if(_mode == MODE_PLAYBACK && _vcr) {
                 _vcr.computeSpectrum(_spectrumByteArray);
-            } else if(_mode == MODE_RECORD) {
+                hasUpdated = true;
+            } else if(_mode == MODE_RECORD && _camera) {
                 _camera.computeSpectrum(_spectrumByteArray);
+                hasUpdated = true;
             }
-
-            updateSpectrumAnalyzer();
+            
+            if(hasUpdated) {
+                updateSpectrumAnalyzer();
+            }
         }
 
         /*
@@ -500,29 +525,32 @@ package
         private function onCameraActivity( e:ActivityEvent ):void
         {
 
-            if(!_isReady && _mode == MODE_RECORD) {
-                _isReady = true;
-                notify('ready');
-                return;
-            }
-
             notify('camera.activity',e.activating);
         }
 
         private function onCameraReady( e:Event ):void
         {
-            if(_spectrum) {
-                startSpectrumAnalyzer();
-            }
-
             notify('camera.ready');
+            
+            if(!_isReady && _mode == MODE_RECORD) {
+                _isReady = true;
+                notify('ready');
+                return;
+            }
+        }
+
+        private function onCameraSecurityOpen( e:Event ):void
+        {
+            notify('camera.security_open');
+        }
+        
+        private function onCameraSecurityClose( e:Event ):void
+        {
+            notify('camera.security_close');
         }
 
         private function onCameraCleaned( e:Event ):void
         {
-            if(_spectrum) {
-                stopSpectrumAnalyzer();
-            }
             notify('camera.cleaned');
         }
 
@@ -574,11 +602,6 @@ package
         private function onVCRReady( e:Event ):void
         {
 
-            if(_spectrumMask) {
-                _spectrumMask.intensity = 0;
-                _spectrumMask.draw();
-            }
-
             notify('playback.ready');
 
             if(!_isReady && _mode == MODE_PLAYBACK) {
@@ -590,10 +613,6 @@ package
         private function onVCRPlay( e:Event ):void
         {
             notify('playback.play');
-
-            if(_spectrum) {
-                startSpectrumAnalyzer();
-            }
         }
 
         private function onVCRPlayed( e:Event ):void
@@ -618,9 +637,6 @@ package
 
         private function onVCRStopped( e:Event ):void
         {
-            if(_spectrum) {
-                stopSpectrumAnalyzer();
-            }
             notify('playback.stopped');
         }
 
