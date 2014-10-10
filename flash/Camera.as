@@ -63,6 +63,8 @@ package
 		private var _height:Number = DEFAULT_HEIGHT;
 		private var _webcamWidth:Number = DEFAULT_WIDTH;
 		private var _webcamHeight:Number = DEFAULT_HEIGHT;
+		
+		private var _holderSprite:Sprite;
 
 		private var _quality:Number = DEFAULT_QUALITY;
 		private var _framerate:Number = DEFAULT_FRAMERATE;
@@ -131,13 +133,18 @@ package
 		{
 		
 			Camcorder.log('[Camera] init');
+			
+			_holderSprite = new Sprite();
 
 			//Create video player
 			_video = new Video(_width, _height);
 			_video.smoothing = true;
 			_video.x = 0;
 			_video.y = 0;
-			addChild( _video );
+			//addChild(_video);
+			//_video.parent.addChild(_holderSprite);
+			_holderSprite.addChild(_video);
+			addChild(_holderSprite);
 
 			//Webcam
 			if( !webcam ) {
@@ -539,6 +546,12 @@ package
 			_video.height = videoHeight;
 			_video.x = videoX;
 			_video.y = videoY;
+			
+			_holderSprite.scaleX = -1.0;
+			_holderSprite.x = videoWidth + videoX;
+			
+			//Camcorder.log('videoWidth:'+videoWidth+' width:'+_video.width+' scaleX:'+_video.scaleX);
+			
 		}
 
 		private function onMouseMove(e:Event):void {
