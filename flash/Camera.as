@@ -124,6 +124,11 @@ package
             addEventListener(Event.REMOVED_FROM_STAGE, clean);
 			
 		}
+		
+		public static function hasCameras():Boolean
+		{
+			return !flash.media.Camera.names || !flash.media.Camera.names.length ? false:true;
+		}
 
 		/*
 		 *
@@ -142,8 +147,6 @@ package
 			_video.smoothing = true;
 			_video.x = 0;
 			_video.y = 0;
-			//addChild(_video);
-			//_video.parent.addChild(_holderSprite);
 			_holderSprite.addChild(_video);
 			addChild(_holderSprite);
 
@@ -558,10 +561,8 @@ package
 			_video.x = videoX;
 			_video.y = videoY;
 			
-			_holderSprite.scaleX = -1.0;
-			_holderSprite.x = videoWidth + videoX;
-			
-			//Camcorder.log('videoWidth:'+videoWidth+' width:'+_video.width+' scaleX:'+_video.scaleX);
+			//_holderSprite.scaleX = -1.0;
+			//_holderSprite.x = videoWidth + videoX;
 			
 		}
 

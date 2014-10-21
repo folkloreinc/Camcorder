@@ -101,11 +101,20 @@ package
             }
             log('------');
             
+            if (!Camera.hasCameras()) {
+                log('No camera detected.');
+                notify('camera.nocamera');
+                return;
+            }
+            
             if(_serverURL && _serverURL.length) {
                 initConnection();
             } else {
-                initCamera();
-                initVCR();
+                if(_mode == MODE_RECORD) {
+                    initCamera();
+                } else if(_mode == MODE_PLAYBACK) {
+                    initVCR();
+                }
             }
 
             //Resize
@@ -355,6 +364,10 @@ package
 
             var modeSprite:Sprite;
             if(mode == MODE_PLAYBACK) {
+                
+                if(!_vcr) {
+                    this.initVCR();
+                }
 
                 if(_mode == MODE_RECORD && _camera) {
                     removeChild(_camera);
@@ -366,6 +379,10 @@ package
                 SoundMixer.soundTransform = new SoundTransform(1.0);
 
             } else if(mode == MODE_RECORD) {
+                
+                if(!_camera) {
+                    this.initCamera();
+                }
 
                 if(_mode == MODE_PLAYBACK && _vcr) {
                     removeChild(_vcr);
@@ -477,10 +494,9 @@ package
                 case "NetConnection.Connect.Success":
                     _isConnected = true;
                     notify('connection.ready');
-                    if(!_camera) {
+                    if(!_camera && _mode == MODE_RECORD) {
                         initCamera();
-                    }
-                    if(!_vcr) {
+                    } else if(!_vcr && _mode == MODE_PLAYBACK) {
                         this.initVCR();
                     }
                 break;
