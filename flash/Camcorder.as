@@ -171,7 +171,9 @@ package
             _camera.setSize(stage.stageWidth,stage.stageHeight);
             _camera.addEventListener(ActivityEvent.ACTIVITY, onCameraActivity);
             _camera.addEventListener(CameraEvent.MICROPHONE_READY, onCameraMicrophoneReady);
+            _camera.addEventListener(CameraEvent.MICROPHONE_MUTED, onCameraMicrophoneMuted);
             _camera.addEventListener(CameraEvent.CAMERA_READY, onCameraReady);
+            _camera.addEventListener(CameraEvent.CAMERA_MUTED, onCameraMuted);
             _camera.addEventListener(CameraEvent.RECORD_START, onCameraRecordStart);
             _camera.addEventListener(CameraEvent.RECORD_STARTED, onCameraRecordStarted);
             _camera.addEventListener(CameraEvent.RECORD_PAUSE, onCameraRecordPause);
@@ -553,6 +555,16 @@ package
                 notify('ready');
                 return;
             }
+        }
+        
+        private function onCameraMuted( e:Event ):void
+        {
+            notify('camera.muted');
+        }
+        
+        private function onCameraMicrophoneMuted( e:Event ):void
+        {
+            notify('microphone.muted');
         }
 
         private function onCameraSecurityOpen( e:Event ):void

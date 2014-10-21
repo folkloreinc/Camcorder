@@ -596,6 +596,9 @@ package
 						dispatchEvent(new CameraEvent(CameraEvent.CAMERA_READY));
 					}
 				break;
+				case "Camera.Muted":
+					dispatchEvent(new CameraEvent(CameraEvent.CAMERA_MUTED));
+				break;
 			}
 		}
 
@@ -616,6 +619,9 @@ package
 			switch(e.code) {
 				case "Microphone.Unmuted":
 					dispatchEvent(new CameraEvent(CameraEvent.MICROPHONE_READY));
+				break;
+				case "Microphone.Muted":
+					dispatchEvent(new CameraEvent(CameraEvent.MICROPHONE_MUTED));
 				break;
 			}
 		}

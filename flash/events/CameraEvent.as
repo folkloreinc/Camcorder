@@ -5,7 +5,9 @@ package events
     public class CameraEvent extends Event
     {
         public static const MICROPHONE_READY:String = "Microphone.ready";
+        public static const MICROPHONE_MUTED:String = "Microphone.muted";
         public static const CAMERA_READY:String = "Camera.ready";
+        public static const CAMERA_MUTED:String = "Camera.muted";
         public static const RECORD_START:String = "Record.start";
         public static const RECORD_STARTED:String = "Record.started";
         public static const RECORD_PAUSE:String = "Record.pause";
